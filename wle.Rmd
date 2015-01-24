@@ -1,0 +1,53 @@
+---
+title: "Weight Lifting Excercises Classification"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    theme: united
+    toc: no
+    self_contained: true
+---
+## load and clean data
+remove variables with all NAs
+```{r}
+library(data.table)
+wle <- fread('2.csv')
+testing <- fread('4.csv')
+wle <- subset(wle, select=-c(1:7))
+naall <- apply(wle, 2, function(x) sum(is.na(x)))
+cols <- names(which(naall==0))
+wle <- subset(wle, select=cols)
+wle$classe <- factor(wle$classe)
+```
+
+## build model
+use randomforest for classification  
+use 4 folds crossvalidation for accuracy estimation
+```{r cache=TRUE}
+library(caret) 
+library(kernlab)
+library(nnet)
+system.time(modelFit <- train(classe~., data=wle, method='rf', trControl=trainControl(method='cv', number=4, repeats=1)))
+modelFit
+```
+we can see from model output that the accuracy estimate is about 99%  
+## prediction
+
+```{r}
+predictions <- predict(modelFit, newdata=testing)
+predictions
+```
+
+
+## write to submit files
+```{r results='hide'}
+pml_write_files = function(x){
+    n = length(x)
+    for(i in 1:n){
+        filename = paste0("problem_id_",i,".txt")
+        write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+    }
+}
+pml_write_files(predictions)        
+```
