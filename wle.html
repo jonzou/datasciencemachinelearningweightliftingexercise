@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>load and clean data</title>
+<title>Weight Lifting Excercises Classification</title>
 
 <script type="text/javascript">
 window.onload = function() {
@@ -201,9 +201,17 @@ hr {
 </head>
 
 <body>
+<h1>Weight Lifting Excercises Classification</h1>
+
 <h2>load and clean data</h2>
 
-<p>remove variables with all NAs</p>
+<p>clean csv for fread automatic type detection</p>
+
+<pre><code class="shell">sed -e &#39;s/\&quot;//g&#39; -e &#39;s/#DIV\/0!/NA/g&#39; pml-training.csv &gt; 2.csv
+sed -e &#39;s/\&quot;//g&#39; -e &#39;s/#DIV\/0!/NA/g&#39; pml-testing.csv &gt; 4.csv
+</code></pre>
+
+<p>remove variables with almost/all NAs   </p>
 
 <pre><code class="r">library(data.table)
 wle &lt;- fread(&#39;2.csv&#39;)
@@ -222,17 +230,13 @@ use 4 folds crossvalidation for accuracy estimation</p>
 
 <pre><code class="r">library(caret) 
 library(kernlab)
-library(nnet)
-system.time(modelFit &lt;- train(classe~., data=wle, method=&#39;rf&#39;, trControl=trainControl(method=&#39;cv&#39;, number=4, repeats=1)))
-</code></pre>
-
-<pre><code>## Loading required package: randomForest
-## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.
+tc &lt;- trainControl(method=&#39;cv&#39;, number=4, repeats=1)
+timecost &lt;- system.time(modelFit &lt;- train(classe~., data=wle, method=&#39;rf&#39;, trControl=tc))
+timecost
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-## 869.153   1.040 870.690
+## 883.990   0.913 885.412
 </code></pre>
 
 <pre><code class="r">modelFit
@@ -247,14 +251,14 @@ system.time(modelFit &lt;- train(classe~., data=wle, method=&#39;rf&#39;, trCont
 ## No pre-processing
 ## Resampling: Cross-Validated (4 fold) 
 ## 
-## Summary of sample sizes: 14718, 14716, 14717, 14715 
+## Summary of sample sizes: 14716, 14717, 14717, 14716 
 ## 
 ## Resampling results across tuning parameters:
 ## 
-##   mtry  Accuracy   Kappa      Accuracy SD  Kappa SD   
-##    2    0.9935275  0.9918119  0.001228911  0.001555504
-##   27    0.9937823  0.9921345  0.001111903  0.001407643
-##   52    0.9885330  0.9854928  0.002168385  0.002745397
+##   mtry  Accuracy   Kappa      Accuracy SD   Kappa SD    
+##    2    0.9944959  0.9930375  0.0006866537  0.0008686555
+##   27    0.9946998  0.9932954  0.0003719858  0.0004706008
+##   52    0.9885844  0.9855593  0.0033409311  0.0042268038
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 27.

@@ -8,8 +8,19 @@ output:
     toc: no
     self_contained: true
 ---
+Weight Lifting Excercises Classification
+==========================================
 ## load and clean data
-remove variables with all NAs
+
+clean csv for fread automatic type detection
+
+```shell
+sed -e 's/\"//g' -e 's/#DIV\/0!/NA/g' pml-training.csv > 2.csv
+sed -e 's/\"//g' -e 's/#DIV\/0!/NA/g' pml-testing.csv > 4.csv
+```
+
+remove variables with almost/all NAs   
+
 
 ```r
 library(data.table)
@@ -29,19 +40,14 @@ use 4 folds crossvalidation for accuracy estimation
 ```r
 library(caret) 
 library(kernlab)
-library(nnet)
-system.time(modelFit <- train(classe~., data=wle, method='rf', trControl=trainControl(method='cv', number=4, repeats=1)))
-```
-
-```
-## Loading required package: randomForest
-## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.
+tc <- trainControl(method='cv', number=4, repeats=1)
+timecost <- system.time(modelFit <- train(classe~., data=wle, method='rf', trControl=tc))
+timecost
 ```
 
 ```
 ##    user  system elapsed 
-## 869.153   1.040 870.690
+## 883.990   0.913 885.412
 ```
 
 ```r
@@ -58,14 +64,14 @@ modelFit
 ## No pre-processing
 ## Resampling: Cross-Validated (4 fold) 
 ## 
-## Summary of sample sizes: 14718, 14716, 14717, 14715 
+## Summary of sample sizes: 14716, 14717, 14717, 14716 
 ## 
 ## Resampling results across tuning parameters:
 ## 
-##   mtry  Accuracy   Kappa      Accuracy SD  Kappa SD   
-##    2    0.9935275  0.9918119  0.001228911  0.001555504
-##   27    0.9937823  0.9921345  0.001111903  0.001407643
-##   52    0.9885330  0.9854928  0.002168385  0.002745397
+##   mtry  Accuracy   Kappa      Accuracy SD   Kappa SD    
+##    2    0.9944959  0.9930375  0.0006866537  0.0008686555
+##   27    0.9946998  0.9932954  0.0003719858  0.0004706008
+##   52    0.9885844  0.9855593  0.0033409311  0.0042268038
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 27.

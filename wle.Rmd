@@ -8,9 +8,20 @@ output:
     toc: no
     self_contained: true
 ---
+Weight Lifting Excercises Classification
+==========================================
 ## load and clean data
-remove variables with all NAs
-```{r}
+
+clean csv for fread automatic type detection
+
+```shell
+sed -e 's/\"//g' -e 's/#DIV\/0!/NA/g' pml-training.csv > 2.csv
+sed -e 's/\"//g' -e 's/#DIV\/0!/NA/g' pml-testing.csv > 4.csv
+```
+
+remove variables with almost/all NAs   
+
+```{r cache=TRUE}
 library(data.table)
 wle <- fread('2.csv')
 testing <- fread('4.csv')
@@ -27,8 +38,9 @@ use 4 folds crossvalidation for accuracy estimation
 ```{r cache=TRUE}
 library(caret) 
 library(kernlab)
-library(nnet)
-system.time(modelFit <- train(classe~., data=wle, method='rf', trControl=trainControl(method='cv', number=4, repeats=1)))
+tc <- trainControl(method='cv', number=4, repeats=1)
+timecost <- system.time(modelFit <- train(classe~., data=wle, method='rf', trControl=tc))
+timecost
 modelFit
 ```
 we can see from model output that the accuracy estimate is about 99%  
